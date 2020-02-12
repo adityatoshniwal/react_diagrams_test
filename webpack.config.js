@@ -1,11 +1,15 @@
 
+const path = require('path');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+
 const PRODUCTION = process.env.NODE_ENV === 'production';
 const envType = PRODUCTION ? 'production': 'development';
 
 module.exports = {
   mode: envType,
   entry: {
-    index: "./js/index.js",
+    app: "./js/index.js",
+    main: "./css/bundle.css",
   },
   output: {
     path: __dirname + "/dist",
@@ -13,15 +17,27 @@ module.exports = {
   },
   module: {
     rules: [
-        // {
-        //     test: require.resolve('snapsvg'),
-        //     use: {
-        //     loader: 'imports-loader?this=>window,fix=>module.exports=0',
-        //     },
-        // }
+      {
+        test: /.(js|jsx)$/,
+        loader: 'babel-loader',
+
+        options: {
+          presets: ['@babel/preset-env','@babel/preset-react']
+        }
+      },{
+				test: /\.css$/,
+				use: [
+					MiniCssExtractPlugin.loader,
+					'css-loader',
+				],
+			}
     ],
   },
-  plugins: [],
+  plugins: [
+    new MiniCssExtractPlugin({
+      filename: `app.style.css`
+    }),    
+  ],
   resolve: {
     modules: ['node_modules', '.'],
   }
