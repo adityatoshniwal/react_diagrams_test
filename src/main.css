@@ -9,20 +9,52 @@ html, body, #application{
 }
 
 .diagram-container{
-	background: #333333;
 	width: 100%;
 	height: 100%;
+	color: #222222;
+	background-color: #fff;
+	font-family: sans-serif;
 }
 
-.custom-node{
-	border: solid 2px gray;
-	border-radius: 5px;
-	width: 50px;
-	height: 50px;
-	display: flex;
-	align-items: flex-start;
-	justify-content: space-between;
+.table-node {
+	background-color: #fff;
+	border: 1px solid #222222;
+	border-radius: 0.25rem;
 	position: relative;
+	transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.table-node .table-name {
+	border-bottom: 1px solid #222;
+	padding: 0.25rem;
+}
+
+.table-node.selected {
+	border-color: #73a6ce;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(50, 102, 144, 0.25);
+}
+
+.svg-link-ele {
+	stroke: #222222;
+}
+
+.svg-link-ele.path {
+	pointer-events: all;
+}
+
+@keyframes svg-link-ele-selected {
+	from { stroke-dashoffset: 24; } to { stroke-dashoffset: 0; }
+}
+
+.svg-link-ele.selected {
+	stroke: #73a6ce;
+	stroke-dasharray: 10, 2;
+	animation: svg-link-ele-selected 1s linear infinite;
+}
+
+.svg-link-ele.svg-otom-circle {
+	fill: #222;
 }
 
 .custom-node-color{
@@ -46,4 +78,27 @@ html, body, #application{
 
 .circle-port:hover{
 	background: mediumpurple;
+}
+
+.port.port-top {
+	position: absolute;
+    left: 50%;
+    right: 50%;
+}
+.port.port-bottom {
+	position: absolute;
+	bottom: 0;
+    left: 50%;
+    right: 50%;
+}
+.port.port-left {
+	position: absolute;
+    top: 50%;
+    bottom: 50%;
+}
+.port.port-right {
+	position: absolute;
+	right: 0;
+    top: 50%;
+    bottom: 50%;
 }

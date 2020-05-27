@@ -10,9 +10,10 @@ module.exports = {
 	mode: envType,
 	devtool: 'inline-source-map',
 	entry: './src/main.js',
+	context: __dirname,
 	output: {
 		path: path.join(__dirname, 'dist'),
-		filename: 'bundle.js'
+		filename: 'bundle.js',
 	},
 	resolve: {
 		extensions: ['.ts', '.tsx', '.js', '.jsx']
@@ -22,7 +23,7 @@ module.exports = {
 			new TerserPlugin({
 				parallel: true,
 				terserOptions: {
-					ecma: 6
+					// ecma: 6
 				}
 			})
 		]
@@ -36,15 +37,12 @@ module.exports = {
 			{
 				test: /\.jsx?$/,
 				exclude: /node_modules/,
-				use: ['babel-loader']
-			},
-			{
-				test: /\.tsx?$/,
-				loader: 'ts-loader',
+				loader: 'babel-loader',
 				options: {
-					transpileOnly: true
+					presets: ['@babel/preset-env', '@babel/preset-react'],
+					plugins: ['@babel/plugin-proposal-class-properties'],
 				}
-			}
+			},
 		]
 	},
 

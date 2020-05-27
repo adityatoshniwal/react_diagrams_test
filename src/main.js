@@ -1,40 +1,54 @@
+import createEngine, { DiagramModel, PortModelAlignment } from '@projectstorm/react-diagrams';
+import './main.css';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import './main.css';
-import createEngine, { DefaultLinkModel, DiagramModel } from '@projectstorm/react-diagrams';
-import { JSCustomNodeFactory } from './custom-node-js/JSCustomNodeFactory';
-import { JSCustomNodeModel } from './custom-node-js/JSCustomNodeModel';
-import { BodyWidget } from './BodyWidget';
+import {TableNodeFactory, TableNodeModel } from './nodes/TableNode';
+import { OneToManyLinkFactory } from './links/OneToManyLink';
+import BodyWidget from './BodyWidget';
+import ERDModel from './ERDModel';
 
-// create an instance of the engine
+// setup the diagram engine
 const engine = createEngine();
+// setup the diagram model
+const model = new ERDModel();
 
-// register the two engines
-engine.getNodeFactories().registerFactory(new JSCustomNodeFactory());
+engine.getNodeFactories().registerFactory(new TableNodeFactory());
+engine.getLinkFactories().registerFactory(new OneToManyLinkFactory());
+const onetomany = engine.getLinkFactories().getFactory('onetomany');
+const tablefactory = engine.getNodeFactories().getFactory('table');
 
-// create a diagram model
-const model = new DiagramModel();
+var nodea1 = tablefactory.generateModel({
+	data: {
+		name: 'Table1',
+		columns: [
+			{name: 'id', displaytypname: 'smallint', is_primary_key: true},
+			{name: 'col1', displaytypname: 'text', is_primary_key: false}
+		]
+	}
+});
+nodea1.setPosition(200, 200);
 
-//####################################################
-// now create two nodes of each type, and connect them
+var nodea2 = tablefactory.generateModel({
+	data: null
+});
+nodea2.setPosition(500, 50);
 
-const node1 = new JSCustomNodeModel({ color: 'rgb(192,255,0)' });
-node1.setPosition(50, 50);
+var nodea3 = tablefactory.generateModel({
+	data: null
+});
+nodea3.setPosition(500, 400);
 
-const node2 = new JSCustomNodeModel({ color: 'rgb(0,192,255)' });
-node2.setPosition(200, 50);
+// add all to the main model
+var link1 = nodea1.getPort(PortModelAlignment.RIGHT).link(nodea2.getPort(PortModelAlignment.BOTTOM), onetomany)
+var link2 = nodea1.getPort(PortModelAlignment.BOTTOM).link(nodea3.getPort(PortModelAlignment.TOP), onetomany)
+var link3 = nodea3.getPort(PortModelAlignment.BOTTOM).link(nodea1.getPort(PortModelAlignment.LEFT), onetomany)
 
-const link1 = new DefaultLinkModel();
-link1.setSourcePort(node1.getPort('out'));
-link1.setTargetPort(node2.getPort('in'));
+model.addAll(link1, link2, link3);
+model.addAll(nodea1, nodea2, nodea3);
 
-model.addAll(node1, node2, link1);
-
-//####################################################
-
-// install the model into the engine
+// load model into engine and render
 engine.setModel(model);
 
 document.addEventListener('DOMContentLoaded', () => {
-	ReactDOM.render(<BodyWidget engine={engine} />, document.querySelector('#application'));
+	ReactDOM.render(<BodyWidget engine={engine} model={model} />, document.querySelector('#application'));
 });
