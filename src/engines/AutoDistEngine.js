@@ -23,5 +23,4 @@ export default class AutoDistEngine {
 			.calculateRoutingMatrix();
 		this.engine.repaintCanvas();
 	};
-
 }

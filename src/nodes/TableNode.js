@@ -15,12 +15,9 @@ export class TableNodeModel extends DefaultNodeModel {
 
 		this._data = {
 			name: 'NewTable',
-			columns: []
+			columns: [],
+			...data
 		};
-
-		if(data) {
-			this._data = data;
-		}
 
         this.addPort(new OneToManyPortModel({name:PortModelAlignment.TOP, label:'TOP', alignment:PortModelAlignment.TOP}));
         this.addPort(new OneToManyPortModel({name:PortModelAlignment.BOTTOM, label:'BOTTOM', alignment:PortModelAlignment.BOTTOM}));
@@ -106,8 +103,8 @@ export class TableNodeFactory extends AbstractReactFactory {
 		super(TYPE);
 	}
 
-	generateModel(event) {
-		return new TableNodeModel({type: TableNodeFactory.NAME}, event.data);
+	generateModel(initData) {
+		return new TableNodeModel({type: TableNodeFactory.NAME}, initData);
 	}
 
 	generateReactWidget(event) {

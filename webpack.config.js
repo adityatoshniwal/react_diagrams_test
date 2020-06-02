@@ -16,15 +16,20 @@ module.exports = {
 		filename: 'bundle.js',
 	},
 	resolve: {
-		extensions: ['.ts', '.tsx', '.js', '.jsx']
+		extensions: ['.js', '.jsx']
 	},
 	optimization: {
 		minimizer: [
 			new TerserPlugin({
 				parallel: true,
+				cache: true,
 				terserOptions: {
-					// ecma: 6
-				}
+				  compress: true,
+				  extractComments: true,
+				  output: {
+					comments: false,
+				  },
+				},
 			})
 		]
 	},
@@ -39,7 +44,7 @@ module.exports = {
 				exclude: /node_modules/,
 				loader: 'babel-loader',
 				options: {
-					presets: ['@babel/preset-env', '@babel/preset-react'],
+					presets: [['@babel/preset-env',{'modules': 'commonjs', 'useBuiltIns': 'usage', 'corejs': 3}], '@babel/preset-react'],
 					plugins: ['@babel/plugin-proposal-class-properties'],
 				}
 			},

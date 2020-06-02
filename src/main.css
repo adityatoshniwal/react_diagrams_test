@@ -8,6 +8,12 @@ html, body, #application{
 	overflow: hidden;
 }
 
+.file-input-hidden {
+	height: 0;
+	width: 0;
+	visibility: hidden;
+}
+
 .diagram-container{
 	width: 100%;
 	height: 100%;

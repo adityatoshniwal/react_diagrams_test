@@ -3,21 +3,24 @@ import { CanvasWidget } from '@projectstorm/react-canvas-core';
 import AutoDistEngine from './engines/AutoDistEngine';
 import {TableNodeModel} from './nodes/TableNode';
 import { PortModelAlignment } from '@projectstorm/react-diagrams';
+import DiagramEngine from './DiagramEngine';
+import KeyboardAction from './commands/KeyboardAction';
 
 export default class BodyWidget extends React.Component {
 	constructor(props) {
 		super(props);
+		this.diagram = new DiagramEngine();
 		this.autoDistEngine = new AutoDistEngine(props.engine, props.model);
 
 		this.state = {
 			relSource: null,
 		}
 
-		this.onetomany = props.engine.getLinkFactories().getFactory('onetomany')
-
-		props.model.getNodes().forEach(node => {
+		this.diagram.getModel().getNodes().forEach(node => {
 			this.registerSelectionListener(node);
 		});
+
+		this.fileInputRef = React.createRef();
 	}
 
 	registerSelectionListener(node) {
@@ -35,50 +38,82 @@ export default class BodyWidget extends React.Component {
 			}
 		});
 	}
-
-	unselectAll() {
-		this.props.model.getSelectedEntities().forEach(node => {
-			node.setSelected(false);
-		});
-	}
 	addRelation(source, target, factory) {
 		let newLink = source.getPort(PortModelAlignment.RIGHT).link(target.getPort(PortModelAlignment.BOTTOM), factory)
 		this.props.model.addLink(newLink);
 		this.forceUpdate();
 	}
 
-	onRedistClick() {
-		this.autoDistEngine.autoDistribute();
-	}
 	onAddRelationClick() {
 		this.setState({relSource: this.props.model.getSelectedEntities()[0]});
 	}
-	onAddNodeClick() {
-		let newNode = new TableNodeModel({name:'Table'});
-		newNode.setPosition(50, 50);
-		this.unselectAll();
-		newNode.setSelected(true);
-		this.registerSelectionListener(newNode);
-		this.props.model.addNode(newNode);
-		this.forceUpdate();
+
+	onCloneNode = () => {
+		this.diagram.fireEvent(null, 'cloneNode');
 	}
-	onSerializeClick() {
-		console.log(JSON.stringify(this.props.model.serialize(), null, 4));
+
+	onAddNewNode = () => {
+		this.diagram.fireEvent(null, 'addNewNode');
 	}
-	onSerializeDataClick() {
-		console.log(JSON.stringify(this.props.model.serializeData(), null, 4));
+
+	onAutoDistribute = () => {
+		this.diagram.fireEvent(null, 'autoDistribute');
+	}
+	
+	onFileChange = (event) => {
+		let fReader = new FileReader();
+		fReader.readAsText(event.target.files[0]);
+		fReader.onloadend = (event) => {
+			this.diagram.fireEvent(JSON.parse(event.target.result), 'loadDiagram');
+		}
+	}
+
+	onLoadDiagram = () => {
+		this.fileInputRef.current.click();
+	}
+
+	onSaveDiagram = () => {
+		this.diagram.fireEvent(null, 'saveDiagram');
+	}
+
+	onExportDiagramData = () => {
+		this.diagram.fireEvent(null, 'exportDiagramData');
+	}
+
+	componentDidMount() {
+		this.diagram.registerKeyAction([
+			new KeyboardAction({
+				ctrlKey: true,
+				code: 'KeyN'
+			}, this.onAddNewNode),
+			new KeyboardAction({
+				ctrlKey: true,
+				code: 'KeyD'
+			}, this.onCloneNode),
+			new KeyboardAction({
+				ctrlKey: true,
+				code: 'KeyR'
+			}, this.onAutoDistribute),
+			new KeyboardAction({
+				ctrlKey: true,
+				code: 'KeyO'
+			}, this.onLoadDiagram)			
+		]);
 	}
 	render() {
 		return (
 			<>
 			<div>
-				<button onClick={this.onRedistClick.bind(this)}>Redistribute</button>
-				<button onClick={this.onAddNodeClick.bind(this)}>Add Node</button>
-				<button onClick={this.onAddRelationClick.bind(this)}>Add Relation</button>
-				<button onClick={this.onSerializeClick.bind(this)}>Serialize</button>
-				<button onClick={this.onSerializeDataClick.bind(this)}>Serialize data</button>
+				<button onClick={this.onAutoDistribute}>Redistribute</button>
+				<button onClick={this.onAddNewNode}>Add Node</button>
+				<button onClick={this.onCloneNode}>Clone</button>
+				{/* <button onClick={this.onAddRelationClick.bind(this)}>Add Relation</button> */}
+				<button onClick={this.onSaveDiagram}>Save</button>
+				<button onClick={this.onExportDiagramData}>Export data</button>
+				<input className="file-input-hidden" type="file" id="fileinput" ref={this.fileInputRef} onChange={this.onFileChange}/>
+				<button onClick={this.onLoadDiagram} type=''>Load data</button>
 			</div>
-			<CanvasWidget className="diagram-container" engine={this.props.engine} />
+			<CanvasWidget className="diagram-container" engine={this.diagram.getEngine()} />
 			</>
 		);
 	}
