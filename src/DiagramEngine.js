@@ -42,7 +42,7 @@ export default class DiagramEngine {
 
     getModel = () => this.getEngine().getModel();
 
-    getNewNode = (initData) => this.getEngine().getNodeFactories().getFactory('table').generateModel(initData);
+    getNewNode = (initData) => this.getEngine().getNodeFactories().getFactory('table').generateModel({data:initData});
 
     serialize = () => this.getModel().serialize()
 

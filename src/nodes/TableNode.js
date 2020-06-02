@@ -7,7 +7,7 @@ import OneToManyPortModel from '../ports/OneToManyPortModel';
 const TYPE = 'table';
 
 export class TableNodeModel extends DefaultNodeModel {
-	constructor(options = {}, data) {
+	constructor({data, ...options}) {
 		super({
 			...options,
 			type: TYPE
@@ -19,10 +19,10 @@ export class TableNodeModel extends DefaultNodeModel {
 			...data
 		};
 
-        this.addPort(new OneToManyPortModel({name:PortModelAlignment.TOP, label:'TOP', alignment:PortModelAlignment.TOP}));
-        this.addPort(new OneToManyPortModel({name:PortModelAlignment.BOTTOM, label:'BOTTOM', alignment:PortModelAlignment.BOTTOM}));
-        this.addPort(new OneToManyPortModel({name:PortModelAlignment.LEFT, label:'LEFT', alignment:PortModelAlignment.LEFT}));
-        this.addPort(new OneToManyPortModel({name:PortModelAlignment.RIGHT, label:'RIGHT', alignment:PortModelAlignment.RIGHT}));
+		this.addPort(new OneToManyPortModel({name:PortModelAlignment.TOP, label:'TOP', alignment:PortModelAlignment.TOP}));
+		this.addPort(new OneToManyPortModel({name:PortModelAlignment.BOTTOM, label:'BOTTOM', alignment:PortModelAlignment.BOTTOM}));
+		this.addPort(new OneToManyPortModel({name:PortModelAlignment.LEFT, label:'LEFT', alignment:PortModelAlignment.LEFT}));
+		this.addPort(new OneToManyPortModel({name:PortModelAlignment.RIGHT, label:'RIGHT', alignment:PortModelAlignment.RIGHT}));
 	}
 
 	addColumn(col) {
@@ -44,13 +44,8 @@ export class TableNodeModel extends DefaultNodeModel {
 	serialize() {
 		return {
 			...super.serialize(),
-			data: this.data
+			data: this.getData()
 		};
-	}
-
-	deserialize(ob, engine) {
-		super.deserialize(ob, engine);
-		this.data = ob.data;
 	}
 }
 
@@ -68,7 +63,7 @@ class TableNodeWidget extends React.Component {
 		)
 	}
 
-    generatePort = port => {
+	generatePort = port => {
 		return (<PortWidget engine={this.props.engine} port={port} key={port.getID()} className={"port-" + port.options.alignment}>
             <div  />
         </PortWidget>);
@@ -103,8 +98,8 @@ export class TableNodeFactory extends AbstractReactFactory {
 		super(TYPE);
 	}
 
-	generateModel(initData) {
-		return new TableNodeModel({type: TableNodeFactory.NAME}, initData);
+	generateModel(event) {
+		return new TableNodeModel(event.initialConfig);
 	}
 
 	generateReactWidget(event) {
